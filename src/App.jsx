@@ -7,6 +7,7 @@ import Product from "./components/pages/Product";
 import AboutUs from "./components/pages/AboutUs";
 import ContactUs from "./components/pages/ContactUs";
 import Login from "./components/pages/authentication/Login";
+import Signup from "./components/pages/authentication/Signup";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </BrowserRouter>
   );
