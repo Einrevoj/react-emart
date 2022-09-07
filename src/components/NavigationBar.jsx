@@ -3,10 +3,22 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart, faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { Container, Navbar } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
+import { auth } from "../Firebase";
+import * as actionUser from "../redux/actions/actionUser";
+import { bindActionCreators } from "redux";
+import { useDispatch } from "react-redux";
 
 export default function NavigationBar() {
+  const { logoutUser } = bindActionCreators(actionUser, useDispatch());
+
+  const logout = (e) => {
+    e.preventDefault();
+    auth.signOut();
+    logoutUser();
+  };
+
   return (
-    <Navbar bg="light" expand="lg" className=" py-4  bg-white fixed-top">
+    <Navbar bg="light" expand="lg" className="bg-white py-4 fixed-top">
       <Container>
         <NavLink
           to="/"
@@ -19,19 +31,20 @@ export default function NavigationBar() {
           <span id="brand-name">ULTRA</span>
         </NavLink>
 
-        <div className="order-lg-2 nav-btns">
+        <div className="nav-btns order-lg-2">
           <>
             <NavLink to="/cart" className="btn position-relative" type="button">
               <FontAwesomeIcon icon={faShoppingCart} />
-              <span className="nav-btn-label">CART</span>(0)
+              <span className="nav-btn-label"> CART </span>( 0 )
             </NavLink>
             <NavLink
-              to="/logout"
+              to="/login"
               className="btn position-relative"
               type="button"
+              onClick={logout}
             >
               <FontAwesomeIcon icon={faSignOut} />
-              <span className="nav-btn-label">LOGOUT</span>
+              <span className="nav-btn-label"> LOGOUT</span>
             </NavLink>
           </>
         </div>
@@ -40,10 +53,7 @@ export default function NavigationBar() {
           <span className="navbar-toggler-icon"></span>
         </Navbar.Toggle>
 
-        <Navbar.Collapse
-          className="collapse navbar-collapse order-lg-1"
-          id="navMenu"
-        >
+        <Navbar.Collapse className="order-lg-1">
           <ul className="navbar-nav mx-auto text-center">
             <li className="nav-item px-2 py-2">
               <NavLink to="/" className="nav-link text-dark">

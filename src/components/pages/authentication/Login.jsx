@@ -1,23 +1,68 @@
-import React, { useState } from "react";
-import "./Login.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { auth, db, facebookProvider, googleProvider } from "../../../Firebase";
+import { bindActionCreators } from "redux";
+import { useDispatch } from "react-redux";
+import * as actionUser from "../../../redux/actions/actionUser";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useState } from "react";
+import "./Login.css";
 
 export default function Login() {
   const [darkMode, setDarkMode] = useState("");
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
 
   // Validation
   const [invalidUser, setInvalidUser] = useState(false);
 
+  const [userList] = useCollection(db.collection("users"));
+  const [user] = useAuthState(auth);
+  const { loginUser } = bindActionCreators(actionUser, useDispatch());
+
+  const checkIfValid = () => {
+    let isValid = false;
+    // Check if there's no user created
+    if (userList.docs.length === 0) {
+      setInvalidUser(true);
+      return false;
+    }
+    // Check if user exist
+    userList.docs.forEach((user) => {
+      if (user.data().email === email && user.data().password === password) {
+        setInvalidUser(false);
+        isValid = true;
+      } else {
+        setInvalidUser(true);
+      }
+    });
+    //return statement
+    return isValid;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("SUBMIT!!");
+    if (checkIfValid()) {
+      loginUser({ email });
+    }
   };
+
+  const facebookSignIn = (e) => {
+    e.preventDefault();
+    auth.signInWithPopup(facebookProvider).catch((e) => alert(e.message));
+  };
+
+  const googleSignIn = (e) => {
+    e.preventDefault();
+    auth.signInWithPopup(googleProvider).catch((error) => alert(error.message));
+  };
+
+  console.log(user);
 
   return (
     <div className="auth">
@@ -36,11 +81,17 @@ export default function Login() {
                 </span>
               </div>
               <h5 className="text-center fst-italic">Shopping-Style-Fashion</h5>
-              <button className={`btn mt-5 mb-3 service-btn${darkMode}`}>
+              <button
+                className={`btn mt-5 mb-3 service-btn${darkMode}`}
+                onClick={facebookSignIn}
+              >
                 <FontAwesomeIcon icon={faFacebook} />
                 <span> Login with Facebook</span>
               </button>
-              <button className={`btn mb-3 service-btn${darkMode}`}>
+              <button
+                className={`btn mb-3 service-btn${darkMode}`}
+                onClick={googleSignIn}
+              >
                 <FontAwesomeIcon icon={faGoogle} />
                 <span> Login with Google</span>
               </button>
