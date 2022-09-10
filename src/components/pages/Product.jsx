@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import Footer from "../Footer";
+import { useSelector } from "react-redux";
+import { db } from "../../Firebase";
+import firebase from "firebase/compat/app";
 
 export default function Product() {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [product, setProduct] = useState([]);
+  const activeUser = useSelector((state) => state.activeUser);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getProduct = async () => {
@@ -17,6 +22,18 @@ export default function Product() {
     };
     getProduct();
   }, [id]);
+
+  const addProductToCart = (e) => {
+    e.preventDefault();
+    if (activeUser.id) {
+      db.collection("users").doc(activeUser.id).collection("cart").add({
+        product: product,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      navigate("/login");
+    }
+  };
 
   const renderProduct = () => {
     return (
@@ -37,7 +54,10 @@ export default function Product() {
           </p>
           <h3 className="display-6 fw-bold my-4">{product.price}</h3>
           <p className="lead">{product.description}</p>
-          <button className="btn btn-outline-dark px-4 py-2">
+          <button
+            className="btn btn-outline-dark px-4 py-2"
+            onClick={addProductToCart}
+          >
             Add to Cart
           </button>
           <Link to="/cart" className="btn btn-dark md-2 py-2">
