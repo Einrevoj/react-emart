@@ -1,15 +1,21 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart, faSignOut } from "@fortawesome/free-solid-svg-icons";
+import {
+  faShoppingCart,
+  faSignOut,
+  faSignIn,
+  faEdit,
+} from "@fortawesome/free-solid-svg-icons";
 import { Container, Navbar } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { auth } from "../Firebase";
 import * as actionUser from "../redux/actions/actionUser";
 import { bindActionCreators } from "redux";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function NavigationBar() {
   const { logoutUser } = bindActionCreators(actionUser, useDispatch());
+  const activeUser = useSelector((state) => state.activeUser);
 
   const logout = (e) => {
     e.preventDefault();
@@ -32,21 +38,46 @@ export default function NavigationBar() {
         </NavLink>
 
         <div className="nav-btns order-lg-2">
-          <>
-            <NavLink to="/cart" className="btn position-relative" type="button">
-              <FontAwesomeIcon icon={faShoppingCart} />
-              <span className="nav-btn-label"> CART </span>( 0 )
-            </NavLink>
-            <NavLink
-              to="/login"
-              className="btn position-relative"
-              type="button"
-              onClick={logout}
-            >
-              <FontAwesomeIcon icon={faSignOut} />
-              <span className="nav-btn-label"> LOGOUT</span>
-            </NavLink>
-          </>
+          {activeUser.email ? (
+            <>
+              <NavLink
+                to="/cart"
+                className="btn position-relative"
+                type="button"
+              >
+                <FontAwesomeIcon icon={faShoppingCart} />
+                <span className="nav-btn-label"> CART </span>( 0 )
+              </NavLink>
+              <NavLink
+                to="/login"
+                className="btn position-relative"
+                type="button"
+                onClick={logout}
+              >
+                <FontAwesomeIcon icon={faSignOut} />
+                <span className="nav-btn-label"> LOGOUT</span>
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                className="btn position-relative"
+                type="button"
+              >
+                <FontAwesomeIcon icon={faSignIn} />
+                <span className="nav-btn-label"> LOGIN</span>
+              </NavLink>
+              <NavLink
+                to="/signup"
+                className="btn position-relative"
+                type="button"
+              >
+                <FontAwesomeIcon icon={faEdit} />
+                <span className="nav-btn-label"> REGISTER</span>
+              </NavLink>
+            </>
+          )}
         </div>
 
         <Navbar.Toggle className="border-0">
